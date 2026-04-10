@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EGO | Product Details</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* تصميم مخصص لصفحة المنتج الفردي */
+        .product-page { display: flex; gap: 40px; margin-top: 40px; }
+        .product-images { width: 50%; }
+        .product-images img { width: 100%; border-radius: 15px; border: 1px solid var(--border); }
+        
+        .product-details { width: 50%; display: flex; flex-direction: column; }
+        .p-name-large { font-size: 32px; font-weight: 900; margin-bottom: 10px; text-transform: uppercase; }
+        .p-price-large { font-size: 28px; color: var(--accent); font-weight: 800; margin-bottom: 25px; }
+        .p-desc-large { font-size: 16px; color: #666; line-height: 1.6; margin-bottom: 30px; border-top: 1px solid var(--border); padding-top: 20px; }
+        
+        .selector-label { font-size: 12px; font-weight: 700; color: #888; margin-bottom: 10px; }
+        .sizes-list { display: flex; gap: 10px; margin-bottom: 30px; }
+        .size-item { border: 1px solid var(--border); padding: 12px 20px; cursor: pointer; transition: 0.2s; font-weight: 600; background: white; }
+        .size-item:hover, .size-item.active { border-color: var(--text-dark); background: var(--text-dark); color: white; }
+
+        .action-btns { display: flex; gap: 15px; }
+        .add-cart-btn { flex: 1; padding: 20px; background: #222; color: white; border: none; font-weight: 700; cursor: pointer; text-transform: uppercase; }
+        .buy-now-btn { flex: 1; padding: 20px; background: var(--accent); color: white; border: none; font-weight: 700; cursor: pointer; text-transform: uppercase; text-align: center; }
+
+        /* اقتراحات ذكية */
+        .related-section { margin-top: 80px; border-top: 1px solid var(--border); padding-top: 40px; }
+
+        @media (max-width: 768px) {
+            .product-page { flex-direction: column; gap: 20px; }
+            .product-images, .product-details { width: 100%; }
+            .p-name-large { font-size: 24px; }
+            .action-btns { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="logo">EGO</a>
+        <div class="user-actions">
+            <a href="index.html" class="cart-btn">Back to Shop</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="productContent" class="product-page">
+            <p>Loading product security files...</p>
+        </div>
+
+        <section class="related-section">
+            <div style="font-weight: 800; font-size: 18px; margin-bottom: 20px;">YOU MAY ALSO LIKE</div>
+            <div class="grid" id="relatedGrid"></div>
+        </section>
+    </main>
+
+    <script>
+        // عقل صفحة المنتج
+        async function loadProductDetails() {
+            // 1. الحصول على ID المنتج من الرابط (URL)
+            const params = new URLSearchParams(window.location.search);
+            const productId = params.get('id');
+
+            // 2. جلب البيانات من الملف الرئيسي
+            const response = await fetch('products.json');
+            const products = await response.json();
+            
+            // 3. البحث عن المنتج المطلوب
+            const product = products.find(p => p.id === productId);
+
+            if (product) {
+                // عرض بيانات المنتج
+                document.getElementById('productContent').innerHTML = `
+                    <div class="product-images">
+                        <img src="${product.image}" alt="${product.name}">
+                    </div>
+                    <div class="product-details">
+                        <h1 class="p-name-large">${product.name}</h1>
+                        <div class="p-price-large">${product.price}</div>
+                        <p class="p-desc-large">${product.description}</p>
+                        
+                        <div class="selector-label">SELECT SIZE</div>
+                        <div class="sizes-list">
+                            ${product.sizes.map(s => `<div class="size-item" onclick="selectSize(this)">${s}</div>`).join('')}
+                        </div>
+
+                        <div class="action-btns">
+                            <button class="add-cart-btn" onclick="addToCart('${product.id}')">Add to Cart</button>
+                            <a href="https://members.ogads.com/" class="buy-now-btn">Buy It Now</a>
+                        </div>
+                    </div>
+                `;
+
+                // 4. خوارزمية الاقتراحات (ذكاء AliExpress)
+                // عرض منتجات من نفس القسم باستثناء المنتج الحالي
+                const related = products.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
+                renderRelated(related);
+            } else {
+                document.getElementById('productContent').innerHTML = "<h1>Product not found.</h1>";
+            }
+        }
+
+        function renderRelated(items) {
+            const grid = document.getElementById('relatedGrid');
+            items.forEach(item => {
+                grid.innerHTML += `
+                    <a href="product.html?id=${item.id}" class="product-card">
+                        <div class="img-wrap"><img src="${item.image}"></div>
+                        <div class="card-info">
+                            <div class="p-title">${item.name}</div>
+                            <div class="p-price">${item.price}</div>
+                        </div>
+                    </a>
+                `;
+            });
+        }
+
+        function selectSize(el) {
+            document.querySelectorAll('.size-item').forEach(s => s.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        function addToCart(id) {
+            let cart = JSON.parse(localStorage.getItem('ego_cart')) || [];
+            cart.push(id);
+            localStorage.setItem('ego_cart', JSON.stringify(cart));
+            alert("Added to cart! (This is saved in your local storage)");
+        }
+
+        loadProductDetails();
+    </script>
+</body>
+</html>
