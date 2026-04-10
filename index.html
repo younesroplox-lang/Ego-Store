@@ -2,313 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EGO | THE UNDERGROUND ARCHIVE</title>
-    <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Syne:wght@800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-    <style>
-        /* --- EGO CORE SYSTEM --- */
-        :root {
-            --black: #000000;
-            --blood: #ff003c;
-            --chrome: #c0c0c0;
-            --matrix: #0f0;
-            --noise: url('https://grainy-gradients.vercel.app/noise.svg');
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
-        
-        body { 
-            background-color: var(--black); 
-            color: var(--chrome); 
-            font-family: 'Space Mono', monospace; 
-            overflow-x: hidden;
-            text-transform: uppercase;
-        }
-
-        /* --- CRT SCANLINES & NOISE OVERLAY --- */
-        body::before {
-            content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 9999; background-size: 100% 2px, 3px 100%; pointer-events: none;
-        }
-        body::after {
-            content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background-image: var(--noise); opacity: 0.05; z-index: 9998; pointer-events: none;
-        }
-
-        /* --- CUSTOM CURSOR --- */
-        .cursor-dot { width: 8px; height: 8px; background: var(--blood); position: fixed; border-radius: 50%; z-index: 10000; pointer-events: none; transform: translate(-50%, -50%); transition: width 0.2s, height 0.2s; box-shadow: 0 0 10px var(--blood); }
-        .cursor-outline { width: 40px; height: 40px; border: 1px solid var(--blood); position: fixed; border-radius: 50%; z-index: 9999; pointer-events: none; transform: translate(-50%, -50%); transition: 0.1s; }
-        .hovering .cursor-dot { width: 60px; height: 60px; background: rgba(255,0,60,0.2); border: 1px solid var(--blood); }
-        .hovering .cursor-outline { opacity: 0; }
-
-        /* --- BOOT LOADER --- */
-        #loader { position: fixed; width: 100vw; height: 100vh; background: var(--black); z-index: 20000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s; }
-        .loader-text { font-family: 'Syne', sans-serif; font-size: 5vw; color: var(--blood); font-weight: 800; animation: glitch 0.2s linear infinite; }
-        .loader-sub { color: var(--matrix); font-size: 14px; margin-top: 20px; }
-
-        /* --- GIANT GOTHIC HEADER --- */
-        header { padding: 50px 20px; text-align: center; position: relative; border-bottom: 1px solid #333; }
-        .goth-logo { font-family: 'UnifrakturMaguntia', cursive; font-size: 12vw; color: var(--chrome); line-height: 0.8; text-shadow: 0 0 20px rgba(255,0,60,0.5); text-transform: none; }
-        .header-marquee { position: absolute; bottom: 0; left: 0; width: 100%; background: var(--blood); color: var(--black); font-weight: bold; font-size: 12px; padding: 5px 0; overflow: hidden; white-space: nowrap; }
-        .header-marquee span { display: inline-block; animation: scroll-left 10s linear infinite; }
-
-        /* --- SEARCH & FILTERS (HACKER TERMINAL STYLE) --- */
-        .controls { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; border-bottom: 1px dashed #333; flex-wrap: wrap; gap: 20px;}
-        .search-term { background: transparent; border: none; border-bottom: 2px solid var(--blood); color: var(--chrome); font-family: 'Space Mono', monospace; font-size: 16px; padding: 5px; outline: none; width: 300px; text-transform: uppercase; }
-        .search-term::placeholder { color: #555; }
-        .filters { display: flex; gap: 10px; }
-        .f-btn { background: transparent; border: 1px solid #444; color: #888; padding: 5px 15px; font-family: 'Space Mono'; cursor: none; transition: 0.3s; text-transform: uppercase; font-size: 12px;}
-        .f-btn.active, .f-btn:hover { background: var(--chrome); color: var(--black); border-color: var(--chrome); }
-
-        /* --- EXTREME 3D GRID --- */
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; padding: 60px 40px; perspective: 1000px; }
-        .product-card { position: relative; transform-style: preserve-3d; transition: transform 0.1s ease; cursor: none; }
-        
-        .card-inner { background: #050505; border: 1px solid #222; padding: 15px; transform: translateZ(0); box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
-        .card-inner::before { content: 'EGO'; position: absolute; top: -15px; left: -15px; font-family: 'Syne'; font-size: 80px; color: rgba(255,255,255,0.02); z-index: 0; font-weight: 800; pointer-events: none;}
-        
-        .img-container { width: 100%; aspect-ratio: 3/4; overflow: hidden; position: relative; z-index: 1; filter: grayscale(100%) contrast(120%); transition: 0.5s; border: 1px solid #111;}
-        .product-card:hover .img-container { filter: grayscale(0%) contrast(100%); }
-        .img-container img { width: 100%; height: 100%; object-fit: cover; }
-        
-        /* Glitch effect on hover */
-        .product-card:hover .img-container img { animation: imgGlitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite; }
-        
-        .p-meta { padding-top: 20px; display: flex; justify-content: space-between; align-items: flex-end; z-index: 2; position: relative; }
-        .p-name { font-weight: bold; font-size: 14px; max-width: 70%; line-height: 1.2; }
-        .p-price { color: var(--blood); font-family: 'Syne'; font-size: 24px; font-weight: 800; }
-
-        /* --- THE BLAST DOOR MODAL --- */
-        .modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 15000; display: none; pointer-events: none; }
-        .modal.active { display: block; pointer-events: all; }
-        
-        .door-top, .door-bottom { position: absolute; left: 0; width: 100%; height: 50vh; background: var(--black); border: 2px solid var(--blood); z-index: 1; transition: 0.5s cubic-bezier(0.77, 0, 0.175, 1); }
-        .door-top { top: 0; transform: translateY(-100%); border-bottom: none; }
-        .door-bottom { bottom: 0; transform: translateY(100%); border-top: none; }
-        .modal.active .door-top { transform: translateY(0); }
-        .modal.active .door-bottom { transform: translateY(0); }
-
-        .modal-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; width: 90%; max-width: 1200px; height: 80vh; display: flex; opacity: 0; transition: opacity 0.3s 0.4s; }
-        .modal.active .modal-content { opacity: 1; }
-
-        .m-close { position: absolute; top: -40px; right: 0; color: var(--blood); font-size: 20px; font-weight: bold; background: none; border: none; font-family: 'Space Mono'; cursor: none; }
-        .m-close:hover { animation: glitch 0.2s infinite; }
-
-        .m-left { width: 50%; height: 100%; background: #0a0a0a; border: 1px solid #333; padding: 20px; }
-        .m-img { width: 100%; height: 100%; object-fit: cover; filter: contrast(120%); }
-        
-        .m-right { width: 50%; height: 100%; background: var(--black); border: 1px solid #333; border-left: none; padding: 50px; display: flex; flex-direction: column; position: relative; overflow-y: auto;}
-        .m-right::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,0,60,0.03) 2px, rgba(255,0,60,0.03) 4px); pointer-events: none; }
-        
-        .m-title { font-family: 'Syne'; font-size: 50px; line-height: 1; color: var(--chrome); margin-bottom: 10px; text-transform: uppercase; }
-        .m-price { font-size: 30px; color: var(--blood); margin-bottom: 30px; }
-        .m-desc { color: #888; font-size: 14px; margin-bottom: 40px; line-height: 1.5; }
-        
-        .size-wrap { display: flex; gap: 10px; margin-bottom: auto; }
-        .size-box { border: 1px solid #444; padding: 15px 20px; background: transparent; color: var(--chrome); font-family: 'Space Mono'; transition: 0.2s; }
-        .size-box:hover { background: var(--blood); border-color: var(--blood); color: var(--black); }
-
-        .buy-btn { background: var(--blood); color: var(--black); padding: 25px; text-align: center; text-decoration: none; font-family: 'Syne'; font-weight: 800; font-size: 24px; text-transform: uppercase; letter-spacing: 5px; transition: 0.3s; border: none; margin-top: 30px; display: block;}
-        .buy-btn:hover { background: var(--chrome); color: var(--black); box-shadow: 0 0 20px rgba(255,255,255,0.5); }
-
-        /* --- ANIMATIONS --- */
-        @keyframes scroll-left { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-        @keyframes imgGlitch { 0% { transform: translate(0) } 20% { transform: translate(-2px, 2px) } 40% { transform: translate(-2px, -2px) } 60% { transform: translate(2px, 2px) } 80% { transform: translate(2px, -2px) } 100% { transform: translate(0) } }
-        @keyframes glitch { 0% { text-shadow: 2px 0 0 red, -2px 0 0 blue; } 5% { text-shadow: -2px 0 0 red, 2px 0 0 blue; } 10% { text-shadow: 2px 0 0 red, -2px 0 0 blue; } 15% { text-shadow: none; } 100% { text-shadow: none; } }
-
-        /* Mobile */
-        @media (max-width: 768px) {
-            .goth-logo { font-size: 20vw; }
-            .controls { padding: 20px; }
-            .search-term { width: 100%; }
-            .grid { grid-template-columns: 1fr; padding: 20px; }
-            .modal-content { flex-direction: column; height: 90vh; top: 5%; transform: translate(-50%, 0); }
-            .m-left, .m-right { width: 100%; }
-            .m-left { height: 40%; }
-            .m-right { height: 60%; padding: 20px; }
-            .m-title { font-size: 30px; }
-            .cursor-dot, .cursor-outline { display: none; } /* لا نحتاج للماوس في الهاتف */
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EGO | The Worldwide Archive</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="cursor-dot" id="cursorDot"></div>
-    <div class="cursor-outline" id="cursorOutline"></div>
-
-    <div id="loader">
-        <div class="loader-text">EGO_OS v1.0</div>
-        <div class="loader-sub">ESTABLISHING SECURE CONNECTION...</div>
-    </div>
-
     <header>
-        <div class="goth-logo">Ego</div>
-        <div class="header-marquee">
-            <span>[ WARNING: RESTRICTED ARCHIVES ] --- [ 1 OF 1 PIECES ] --- [ WORLDWIDE DELIVERY ] --- [ WARNING: RESTRICTED ARCHIVES ]</span>
+        <a href="index.html" class="logo">EGO</a>
+        
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search items, hoodies, jeans...">
+        </div>
+
+        <div class="user-actions">
+            <a href="#" class="cart-btn">
+                Cart <span class="cart-badge" id="cartCount">0</span>
+            </a>
         </div>
     </header>
 
-    <div class="controls">
-        <input type="text" id="search" class="search-term interactive" placeholder=">_ SEARCH_DATABASE..." onkeyup="handleSearch()">
-        <div class="filters">
-            <button class="f-btn active interactive" onclick="filterCat('all', this)">[ ALL ]</button>
-            <button class="f-btn interactive" onclick="filterCat('hoodies', this)">[ HOODIES ]</button>
-            <button class="f-btn interactive" onclick="filterCat('tees', this)">[ TEES ]</button>
-            <button class="f-btn interactive" onclick="filterCat('bottoms', this)">[ BOTTOMS ]</button>
-        </div>
-    </div>
-
-    <div style="text-align: center; color: var(--blood); padding: 20px;" id="statusMsg"></div>
-    
-    <div class="grid" id="productGrid"></div>
-
-    <div class="modal" id="modal">
-        <div class="door-top"></div>
-        <div class="door-bottom"></div>
-        <div class="modal-content">
-            <button class="m-close interactive" onclick="closeModal()">[X] ABORT</button>
-            <div class="m-left">
-                <img src="" class="m-img" id="mImg">
-            </div>
-            <div class="m-right">
-                <div class="m-title" id="mTitle">NAME</div>
-                <div class="m-price" id="mPrice">$0.00</div>
-                <div class="m-desc" id="mDesc">DESC</div>
-                <div style="color: var(--matrix); font-size: 12px; margin-bottom: 10px;">> SELECT_PARAMETER:</div>
-                <div class="size-wrap" id="mSizes"></div>
-                <a href="https://members.ogads.com/" class="buy-btn interactive" target="_blank">EXECUTE_PURCHASE</a>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // --- 1. BOOT SEQUENCE ---
-        window.onload = () => {
-            setTimeout(() => {
-                document.getElementById('loader').style.opacity = '0';
-                setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
-            }, 2000);
-        };
-
-        // --- 2. CUSTOM CURSOR & HOVER EFFECTS ---
-        const dot = document.getElementById('cursorDot');
-        const outline = document.getElementById('cursorOutline');
+    <main class="container">
+        <div style="font-weight: 800; font-size: 20px; margin-top: 10px;">JUST DROPPED</div>
         
-        window.addEventListener('mousemove', (e) => {
-            dot.style.left = e.clientX + 'px';
-            dot.style.top = e.clientY + 'px';
-            outline.style.left = e.clientX + 'px';
-            outline.style.top = e.clientY + 'px';
-        });
+        <div class="grid" id="productGrid">
+            </div>
+    </main>
 
-        // --- 3. CORE LOGIC ---
-        let allProducts = [];
-        const grid = document.getElementById('productGrid');
-        const status = document.getElementById('statusMsg');
-
-        fetch('products.json')
-            .then(res => res.json())
-            .then(data => {
-                allProducts = data;
-                renderProducts(allProducts);
-            })
-            .catch(err => {
-                status.innerText = '> FATAL ERROR: DATABASE OFFLINE.';
-            });
-
-        function renderProducts(products) {
-            grid.innerHTML = '';
-            if(products.length === 0) {
-                grid.innerHTML = '<div style="color:#555; text-align:center; width:100%;">> 404_NO_MATCH_FOUND</div>';
-                return;
-            }
-            products.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'product-card interactive';
-                card.onclick = () => openModal(item);
-                card.innerHTML = `
-                    <div class="card-inner">
-                        <div class="img-container"><img src="${item.image}" loading="lazy"></div>
-                        <div class="p-meta">
-                            <div class="p-name">${item.name}</div>
-                            <div class="p-price">${item.price}</div>
-                        </div>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-
-            // Re-attach 3D hover effect to new cards
-            attach3DEffect();
-            attachCursorInteractions();
-        }
-
-        // --- 4. 3D CARD TILT EFFECT ---
-        function attach3DEffect() {
-            const cards = document.querySelectorAll('.product-card');
-            cards.forEach(card => {
-                card.addEventListener('mousemove', (e) => {
-                    const rect = card.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    const centerX = rect.width / 2;
-                    const centerY = rect.height / 2;
-                    const rotateX = ((y - centerY) / centerY) * -15; // Max 15deg rotation
-                    const rotateY = ((x - centerX) / centerX) * 15;
-                    
-                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
-                });
-                
-                card.addEventListener('mouseleave', () => {
-                    card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
-                });
-            });
-        }
-
-        function attachCursorInteractions() {
-            document.querySelectorAll('.interactive').forEach(el => {
-                el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
-                el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
-            });
-        }
-
-        // --- 5. FILTERS & SEARCH ---
-        function filterCat(category, btnElement) {
-            document.querySelectorAll('.f-btn').forEach(b => b.classList.remove('active'));
-            if(btnElement) btnElement.classList.add('active');
-            
-            if(category === 'all') renderProducts(allProducts);
-            else renderProducts(allProducts.filter(p => p.category === category));
-        }
-
-        function handleSearch() {
-            const query = document.getElementById('search').value.toLowerCase();
-            renderProducts(allProducts.filter(p => p.name.toLowerCase().includes(query) || p.category.includes(query)));
-        }
-
-        // --- 6. BLAST DOOR MODAL ---
-        function openModal(item) {
-            document.getElementById('mImg').src = item.image;
-            document.getElementById('mTitle').innerText = item.name;
-            document.getElementById('mPrice').innerText = item.price;
-            document.getElementById('mDesc').innerText = item.description;
-            
-            const sizesDiv = document.getElementById('mSizes');
-            sizesDiv.innerHTML = '';
-            item.sizes.forEach(size => {
-                sizesDiv.innerHTML += `<button class="size-box interactive">${size}</button>`;
-            });
-
-            document.getElementById('modal').classList.add('active');
-            document.body.style.overflow = 'hidden';
-            attachCursorInteractions();
-        }
-
-        function closeModal() {
-            document.getElementById('modal').classList.remove('active');
-            document.body.style.overflow = 'auto';
-        }
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>
