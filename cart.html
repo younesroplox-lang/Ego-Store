@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EGO | Your Shopping Cart</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .cart-container { max-width: 800px; margin: 40px auto; padding: 20px; background: white; border-radius: 15px; border: 1px solid var(--border); }
+        .cart-title { font-size: 24px; font-weight: 900; margin-bottom: 30px; border-bottom: 2px solid var(--text-dark); padding-bottom: 10px; }
+        
+        .cart-item { display: flex; align-items: center; gap: 20px; padding: 20px 0; border-bottom: 1px solid var(--border); }
+        .cart-item img { width: 80px; height: 100px; object-fit: cover; border-radius: 8px; }
+        .cart-item-info { flex-grow: 1; }
+        .cart-item-title { font-weight: 700; font-size: 16px; margin-bottom: 5px; }
+        .cart-item-price { color: var(--accent); font-weight: 800; }
+        
+        .remove-btn { background: none; border: none; color: #ff4d4d; font-size: 12px; cursor: pointer; text-decoration: underline; font-weight: 600; }
+        
+        .cart-summary { margin-top: 30px; text-align: right; }
+        .total-label { font-size: 14px; color: #666; }
+        .total-price { font-size: 28px; font-weight: 900; margin-bottom: 20px; }
+        
+        .checkout-btn { display: block; width: 100%; padding: 20px; background: var(--text-dark); color: white; text-align: center; font-weight: 700; text-transform: uppercase; border-radius: 8px; transition: 0.3s; }
+        .checkout-btn:hover { background: var(--accent); }
+        
+        .empty-msg { text-align: center; padding: 50px; color: #888; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="logo">EGO</a>
+        <div class="user-actions">
+            <a href="index.html" class="cart-btn">Continue Shopping</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="cart-container">
+            <h1 class="cart-title">SHOPPING CART</h1>
+            
+            <div id="cartList">
+                </div>
+
+            <div id="cartSummary" class="cart-summary" style="display: none;">
+                <div class="total-label">Subtotal Estimate:</div>
+                <div class="total-price" id="totalDisplay">$0.00</div>
+                <a href="https://members.ogads.com/" class="checkout-btn">Proceed to Secure Checkout</a>
+            </div>
+            
+            <div id="emptyCart" class="empty-msg">
+                Your cart is empty. <br><br>
+                <a href="index.html" style="color: var(--text-dark); font-weight: bold;">Browse Archives</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        async function loadCart() {
+            const cartIds = JSON.parse(localStorage.getItem('ego_cart')) || [];
+            const cartList = document.getElementById('cartList');
+            const summary = document.getElementById('cartSummary');
+            const empty = document.getElementById('emptyCart');
+            const totalDisplay = document.getElementById('totalDisplay');
+
+            if (cartIds.length === 0) {
+                empty.style.display = 'block';
+                summary.style.display = 'none';
+                return;
+            }
+
+            empty.style.display = 'none';
+            summary.style.display = 'block';
+
+            // جلب البيانات لمطابقة الـ IDs بالأسماء والأسعار
+            const response = await fetch('products.json');
+            const allProducts = await response.json();
+
+            let total = 0;
+            cartList.innerHTML = '';
+
+            cartIds.forEach((id, index) => {
+                const product = allProducts.find(p => p.id === id);
+                if (product) {
+                    // تحويل السعر من نص إلى رقم للحساب (مثلاً $45.00 تصبح 45)
+                    const priceNum = parseFloat(product.price.replace('$', ''));
+                    total += priceNum;
+
+                    cartList.innerHTML += `
+                        <div class="cart-item">
+                            <img src="${product.image}" alt="${product.name}">
+                            <div class="cart-item-info">
+                                <div class="cart-item-title">${product.name}</div>
+                                <div class="cart-item-price">${product.price}</div>
+                            </div>
+                            <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
+                        </div>
+                    `;
+                }
+            });
+
+            totalDisplay.innerText = `$${total.toFixed(2)}`;
+        }
+
+        function removeItem(index) {
+            let cart = JSON.parse(localStorage.getItem('ego_cart')) || [];
+            cart.splice(index, 1); // حذف المنتج حسب مكانه في القائمة
+            localStorage.setItem('ego_cart', JSON.stringify(cart));
+            loadCart(); // إعادة تحميل السلة
+        }
+
+        loadCart();
+    </script>
+</body>
+</html>
