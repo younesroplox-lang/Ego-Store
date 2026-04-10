@@ -1,135 +1,206 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EGO | Product Details</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        /* تصميم مخصص لصفحة المنتج الفردي */
-        .product-page { display: flex; gap: 40px; margin-top: 40px; }
-        .product-images { width: 50%; }
-        .product-images img { width: 100%; border-radius: 15px; border: 1px solid var(--border); }
-        
-        .product-details { width: 50%; display: flex; flex-direction: column; }
-        .p-name-large { font-size: 32px; font-weight: 900; margin-bottom: 10px; text-transform: uppercase; }
-        .p-price-large { font-size: 28px; color: var(--accent); font-weight: 800; margin-bottom: 25px; }
-        .p-desc-large { font-size: 16px; color: #666; line-height: 1.6; margin-bottom: 30px; border-top: 1px solid var(--border); padding-top: 20px; }
-        
-        .selector-label { font-size: 12px; font-weight: 700; color: #888; margin-bottom: 10px; }
-        .sizes-list { display: flex; gap: 10px; margin-bottom: 30px; }
-        .size-item { border: 1px solid var(--border); padding: 12px 20px; cursor: pointer; transition: 0.2s; font-weight: 600; background: white; }
-        .size-item:hover, .size-item.active { border-color: var(--text-dark); background: var(--text-dark); color: white; }
-
-        .action-btns { display: flex; gap: 15px; }
-        .add-cart-btn { flex: 1; padding: 20px; background: #222; color: white; border: none; font-weight: 700; cursor: pointer; text-transform: uppercase; }
-        .buy-now-btn { flex: 1; padding: 20px; background: var(--accent); color: white; border: none; font-weight: 700; cursor: pointer; text-transform: uppercase; text-align: center; }
-
-        /* اقتراحات ذكية */
-        .related-section { margin-top: 80px; border-top: 1px solid var(--border); padding-top: 40px; }
-
-        @media (max-width: 768px) {
-            .product-page { flex-direction: column; gap: 20px; }
-            .product-images, .product-details { width: 100%; }
-            .p-name-large { font-size: 24px; }
-            .action-btns { flex-direction: column; }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EGO | Product</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <span>Simple and trusted product view</span>
+      <span>Fast support</span>
+      <span>Mobile friendly experience</span>
+    </div>
+  </div>
 
-    <header>
-        <a href="index.html" class="logo">EGO</a>
-        <div class="user-actions">
-            <a href="index.html" class="cart-btn">Back to Shop</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">EGO</a>
+
+      <div></div>
+
+      <div class="header-actions">
+        <a href="index.html" class="secondary-btn">Back to shop</a>
+        <a href="cart.html" class="cart-link">
+          Cart
+          <span class="cart-count" id="cartCount">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-section">
+    <div class="container">
+      <div class="breadcrumbs">Home / Product</div>
+
+      <section id="productContainer">
+        <div class="product-layout">
+          <p>Loading product...</p>
         </div>
-    </header>
+      </section>
 
-    <main class="container">
-        <div id="productContent" class="product-page">
-            <p>Loading product security files...</p>
-        </div>
+      <section class="related-section">
+        <h2>You may also like</h2>
+        <div class="grid" id="relatedGrid"></div>
+      </section>
+    </div>
+  </main>
 
-        <section class="related-section">
-            <div style="font-weight: 800; font-size: 18px; margin-bottom: 20px;">YOU MAY ALSO LIKE</div>
-            <div class="grid" id="relatedGrid"></div>
-        </section>
-    </main>
+  <div class="toast" id="toast"></div>
 
-    <script>
-        // عقل صفحة المنتج
-        async function loadProductDetails() {
-            // 1. الحصول على ID المنتج من الرابط (URL)
-            const params = new URLSearchParams(window.location.search);
-            const productId = params.get('id');
+  <script>
+    const productContainer = document.getElementById("productContainer");
+    const relatedGrid = document.getElementById("relatedGrid");
+    const cartCount = document.getElementById("cartCount");
+    const toast = document.getElementById("toast");
+    let selectedSize = "";
 
-            // 2. جلب البيانات من الملف الرئيسي
-            const response = await fetch('products.json');
-            const products = await response.json();
-            
-            // 3. البحث عن المنتج المطلوب
-            const product = products.find(p => p.id === productId);
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2200);
+    }
 
-            if (product) {
-                // عرض بيانات المنتج
-                document.getElementById('productContent').innerHTML = `
-                    <div class="product-images">
-                        <img src="${product.image}" alt="${product.name}">
-                    </div>
-                    <div class="product-details">
-                        <h1 class="p-name-large">${product.name}</h1>
-                        <div class="p-price-large">${product.price}</div>
-                        <p class="p-desc-large">${product.description}</p>
-                        
-                        <div class="selector-label">SELECT SIZE</div>
-                        <div class="sizes-list">
-                            ${product.sizes.map(s => `<div class="size-item" onclick="selectSize(this)">${s}</div>`).join('')}
-                        </div>
+    function getCart() {
+      return JSON.parse(localStorage.getItem("ego_cart")) || [];
+    }
 
-                        <div class="action-btns">
-                            <button class="add-cart-btn" onclick="addToCart('${product.id}')">Add to Cart</button>
-                            <a href="https://members.ogads.com/" class="buy-now-btn">Buy It Now</a>
-                        </div>
-                    </div>
-                `;
+    function setCart(cart) {
+      localStorage.setItem("ego_cart", JSON.stringify(cart));
+    }
 
-                // 4. خوارزمية الاقتراحات (ذكاء AliExpress)
-                // عرض منتجات من نفس القسم باستثناء المنتج الحالي
-                const related = products.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
-                renderRelated(related);
-            } else {
-                document.getElementById('productContent').innerHTML = "<h1>Product not found.</h1>";
-            }
+    function updateCartCount() {
+      cartCount.textContent = getCart().length;
+    }
+
+    function selectSize(size, btn) {
+      selectedSize = size;
+      document.querySelectorAll(".size-btn").forEach((item) => {
+        item.classList.remove("active");
+      });
+      btn.classList.add("active");
+    }
+
+    function addToCart(id) {
+      const cart = getCart();
+      cart.push(id);
+      setCart(cart);
+      updateCartCount();
+      showToast(selectedSize ? "Added to cart" : "Added to cart");
+    }
+
+    async function loadProduct() {
+      const params = new URLSearchParams(window.location.search);
+      const productId = params.get("id");
+
+      try {
+        const response = await fetch("products.json");
+        const products = await response.json();
+        const product = products.find((item) => item.id === productId);
+
+        if (!product) {
+          productContainer.innerHTML = `
+            <div class="empty-state">
+              <h3>Product not found</h3>
+              <p>The requested item could not be found.</p>
+            </div>
+          `;
+          return;
         }
 
-        function renderRelated(items) {
-            const grid = document.getElementById('relatedGrid');
-            items.forEach(item => {
-                grid.innerHTML += `
-                    <a href="product.html?id=${item.id}" class="product-card">
-                        <div class="img-wrap"><img src="${item.image}"></div>
-                        <div class="card-info">
-                            <div class="p-title">${item.name}</div>
-                            <div class="p-price">${item.price}</div>
-                        </div>
-                    </a>
-                `;
-            });
+        productContainer.innerHTML = `
+          <div class="product-layout">
+            <div class="product-gallery">
+              <img src="${product.image}" alt="${product.name}" />
+            </div>
+
+            <div class="product-details">
+              <span class="eyebrow">${product.category}</span>
+              <h1>${product.name}</h1>
+              <div class="product-page-price">${product.price}</div>
+              <p class="product-page-desc">${product.description}</p>
+
+              <div class="detail-card">
+                <div class="detail-label">Select size</div>
+                <div class="size-list">
+                  ${product.sizes.map(size => `
+                    <button class="size-btn" onclick="selectSize('${size}', this)">${size}</button>
+                  `).join("")}
+                </div>
+              </div>
+
+              <div class="detail-card">
+                <div class="detail-label">Why customers like it</div>
+                <p class="product-page-desc" style="margin-bottom:0;">
+                  Clean presentation, clear product details, and an easy path to checkout.
+                </p>
+              </div>
+
+              <div class="product-page-actions">
+                <button class="buy-btn" onclick="addToCart('${product.id}')">Add to cart</button>
+                <a href="cart.html" class="view-btn">Go to cart</a>
+              </div>
+            </div>
+          </div>
+        `;
+
+        const related = products
+          .filter((item) => item.category === product.category && item.id !== product.id)
+          .slice(0, 3);
+
+        if (!related.length) {
+          relatedGrid.innerHTML = `
+            <div class="empty-state">
+              <p>No related products found.</p>
+            </div>
+          `;
+          return;
         }
 
-        function selectSize(el) {
-            document.querySelectorAll('.size-item').forEach(s => s.classList.remove('active'));
-            el.classList.add('active');
-        }
+        relatedGrid.innerHTML = related.map(item => `
+          <article class="product-card">
+            <a href="product.html?id=${item.id}" class="product-image-wrap">
+              <span class="product-badge">Related</span>
+              <img src="${item.image}" alt="${item.name}" />
+            </a>
+            <div class="product-info">
+              <a href="product.html?id=${item.id}">
+                <h3 class="product-title">${item.name}</h3>
+              </a>
+              <p class="product-desc">${item.description}</p>
+              <div class="product-meta">
+                <div class="product-price">${item.price}</div>
+                <div class="product-category">${item.category}</div>
+              </div>
+              <div class="product-actions">
+                <button class="add-btn" onclick="addToCart('${item.id}')">Add to cart</button>
+                <a href="product.html?id=${item.id}" class="view-btn">View</a>
+              </div>
+            </div>
+          </article>
+        `).join("");
 
-        function addToCart(id) {
-            let cart = JSON.parse(localStorage.getItem('ego_cart')) || [];
-            cart.push(id);
-            localStorage.setItem('ego_cart', JSON.stringify(cart));
-            alert("Added to cart! (This is saved in your local storage)");
-        }
+      } catch (error) {
+        console.error(error);
+        productContainer.innerHTML = `
+          <div class="empty-state">
+            <h3>Error loading product</h3>
+            <p>Please check your products.json file.</p>
+          </div>
+        `;
+      }
+    }
 
-        loadProductDetails();
-    </script>
+    window.selectSize = selectSize;
+    window.addToCart = addToCart;
+
+    updateCartCount();
+    loadProduct();
+  </script>
 </body>
 </html>
