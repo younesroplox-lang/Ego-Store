@@ -2,33 +2,43 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EGO | The Worldwide Archive</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <header>
-        <a href="index.html" class="logo">EGO</a>
-        
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Search items, hoodies, jeans...">
-        </div>
+<header>
+    <a href="index.html" class="logo">EGO</a>
+    
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search items, hoodies, jeans...">
+    </div>
 
-        <div class="user-actions">
-            <a href="cart.html" class="cart-btn">
-                Cart <span class="cart-badge" id="cartCount">0</span>
-            </a>
-        </div>
-    </header>
+    <div class="user-actions">
+        <a href="cart.html" class="cart-btn">
+            Cart <span class="cart-badge" id="cartCount">0</span>
+        </a>
+    </div>
+</header>
 
-    <main class="container">
-        <div style="font-weight: 800; font-size: 20px; margin-top: 10px;">JUST DROPPED</div>
-        
-        <div class="grid" id="productGrid">
-            </div>
-    </main>
+<!-- 🔥 HERO SECTION -->
+<section class="hero">
+    <div class="hero-content">
+        <h1>NEW DROP</h1>
+        <p>Underground fashion archive. Limited pieces only.</p>
+        <a href="#" class="hero-btn">Explore Now</a>
+    </div>
+</section>
 
-    <script src="app.js"></script>
+<main class="container">
+
+    <div class="grid-title">JUST DROPPED</div>
+
+    <div class="grid" id="productGrid"></div>
+
+</main>
+
+<script src="app.js"></script>
 </body>
 </html>
