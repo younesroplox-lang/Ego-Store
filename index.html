@@ -1,44 +1,211 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EGO | The Worldwide Archive</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EGO | The Worldwide Archive</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div class="top-strip">
+    <div class="top-strip-inner">
+      <span>FREE SHIPPING ON SELECTED ITEMS</span>
+      <span>NEW SEASON LIVE</span>
+      <span>LIMITED DROPS UPDATED DAILY</span>
+    </div>
+  </div>
 
-<header>
-    <a href="index.html" class="logo">EGO</a>
-    
-    <div class="search-container">
-        <input type="text" id="searchInput" placeholder="Search items, hoodies, jeans...">
+  <header class="site-header">
+    <div class="header-left">
+      <button class="icon-btn mobile-only" id="menuToggle" aria-label="Open menu">☰</button>
+      <a href="index.html" class="logo">EGO</a>
     </div>
 
-    <div class="user-actions">
-        <a href="cart.html" class="cart-btn">
-            Cart <span class="cart-badge" id="cartCount">0</span>
-        </a>
+    <nav class="main-nav" id="mainNav">
+      <button class="nav-link category-chip active" data-category="all">All</button>
+      <button class="nav-link category-chip" data-category="hoodies">Hoodies</button>
+      <button class="nav-link category-chip" data-category="jeans">Jeans</button>
+      <button class="nav-link category-chip" data-category="shirts">Shirts</button>
+      <button class="nav-link category-chip" data-category="jackets">Jackets</button>
+      <button class="nav-link category-chip" data-category="accessories">Accessories</button>
+    </nav>
+
+    <div class="header-actions">
+      <div class="search-shell">
+        <input type="text" id="searchInput" placeholder="Search archive pieces..." />
+      </div>
+
+      <button class="icon-btn" id="wishlistOpen" aria-label="Wishlist">
+        ♥ <span class="mini-badge" id="wishlistCount">0</span>
+      </button>
+
+      <a href="cart.html" class="cart-btn">
+        Cart <span class="cart-badge" id="cartCount">0</span>
+      </a>
     </div>
-</header>
+  </header>
 
-<!-- 🔥 HERO SECTION -->
-<section class="hero">
-    <div class="hero-content">
-        <h1>NEW DROP</h1>
-        <p>Underground fashion archive. Limited pieces only.</p>
-        <a href="#" class="hero-btn">Explore Now</a>
+  <aside class="mobile-panel" id="mobilePanel">
+    <div class="mobile-panel-top">
+      <div class="logo">EGO</div>
+      <button class="icon-btn" id="closeMenu" aria-label="Close menu">✕</button>
     </div>
-</section>
+    <div class="mobile-panel-links">
+      <button class="mobile-category-link category-chip active" data-category="all">All</button>
+      <button class="mobile-category-link category-chip" data-category="hoodies">Hoodies</button>
+      <button class="mobile-category-link category-chip" data-category="jeans">Jeans</button>
+      <button class="mobile-category-link category-chip" data-category="shirts">Shirts</button>
+      <button class="mobile-category-link category-chip" data-category="jackets">Jackets</button>
+      <button class="mobile-category-link category-chip" data-category="accessories">Accessories</button>
+    </div>
+  </aside>
+  <div class="page-overlay" id="pageOverlay"></div>
 
-<main class="container">
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow">WORLDWIDE ARCHIVE</div>
+      <h1>BUILT FOR HEAVY <br />STREET ENERGY</h1>
+      <p>
+        Complex, bold, fast. Discover trending archive pieces, filter categories,
+        save favorites, and shop limited drops from one immersive storefront.
+      </p>
+      <div class="hero-cta-row">
+        <a href="#catalogSection" class="hero-primary">Shop Drop</a>
+        <button class="hero-secondary" id="scrollTrendingBtn">Trending Now</button>
+      </div>
 
-    <div class="grid-title">JUST DROPPED</div>
+      <div class="hero-stats">
+        <div class="stat-box">
+          <strong id="heroProductCount">0+</strong>
+          <span>Products</span>
+        </div>
+        <div class="stat-box">
+          <strong>24/7</strong>
+          <span>Drop Access</span>
+        </div>
+        <div class="stat-box">
+          <strong>Fast</strong>
+          <span>Archive Search</span>
+        </div>
+      </div>
+    </div>
 
-    <div class="grid" id="productGrid"></div>
+    <div class="hero-visual">
+      <div class="visual-card visual-card-main">
+        <div class="visual-label">HOT DROP</div>
+        <div class="visual-title">Urban archive interface</div>
+        <div class="visual-desc">Dynamic sorting, smart search, wishlist, and quick-add actions.</div>
+      </div>
+      <div class="visual-card visual-card-small top-right">NEW</div>
+      <div class="visual-card visual-card-small bottom-left">LIMITED</div>
+      <div class="glow-orb glow-one"></div>
+      <div class="glow-orb glow-two"></div>
+    </div>
+  </section>
 
-</main>
+  <main class="container">
+    <section class="service-row">
+      <div class="service-box">
+        <span>⚡</span>
+        <div>
+          <strong>Fast Navigation</strong>
+          <p>Search, sort, and browse instantly.</p>
+        </div>
+      </div>
+      <div class="service-box">
+        <span>★</span>
+        <div>
+          <strong>Wishlist System</strong>
+          <p>Save the pieces you want to revisit.</p>
+        </div>
+      </div>
+      <div class="service-box">
+        <span>⬢</span>
+        <div>
+          <strong>Dense UI Experience</strong>
+          <p>Designed to feel like a full shopping platform.</p>
+        </div>
+      </div>
+    </section>
 
-<script src="app.js"></script>
+    <section class="catalog-section" id="catalogSection">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">LIVE CATALOG</div>
+          <h2>JUST DROPPED</h2>
+        </div>
+        <div class="toolbar">
+          <button class="toolbar-btn" id="toggleFiltersBtn">Filters</button>
+          <select id="sortSelect" class="toolbar-select">
+            <option value="default">Sort: Featured</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+            <option value="name-asc">Name: A to Z</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="catalog-layout">
+        <aside class="filters-panel" id="filtersPanel">
+          <div class="filter-block">
+            <div class="filter-title">Quick Filters</div>
+            <button class="filter-pill active" data-filter="all">All Pieces</button>
+            <button class="filter-pill" data-filter="under-50">Under $50</button>
+            <button class="filter-pill" data-filter="50-100">$50 to $100</button>
+            <button class="filter-pill" data-filter="over-100">Over $100</button>
+          </div>
+
+          <div class="filter-block">
+            <div class="filter-title">View</div>
+            <button class="filter-pill" id="showFavoritesBtn">Wishlist Only</button>
+            <button class="filter-pill" id="showAllBtn">Reset View</button>
+          </div>
+
+          <div class="filter-block">
+            <div class="filter-title">Status</div>
+            <div class="status-note">Use category chips, search, sorting, wishlist, and quick-add together.</div>
+          </div>
+        </aside>
+
+        <div class="catalog-content">
+          <div class="results-bar">
+            <div class="results-left">
+              <span id="resultsCount">0</span> pieces available
+            </div>
+            <div class="results-right">
+              <button class="ghost-btn" id="clearAllBtn">Clear all</button>
+            </div>
+          </div>
+
+          <div class="grid" id="productGrid"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="promo-banner">
+      <div>
+        <div class="eyebrow">PROMO ACCESS</div>
+        <h3>Unlock archive offers and exclusive pricing drops</h3>
+      </div>
+      <button class="hero-primary" id="promoPulseBtn">Activate Promo</button>
+    </section>
+
+    <section class="newsletter">
+      <div class="newsletter-copy">
+        <div class="eyebrow">JOIN THE LIST</div>
+        <h3>Get notified when the next drop goes live</h3>
+        <p>No backend needed. This stores preference locally for demo experience.</p>
+      </div>
+      <form class="newsletter-form" id="newsletterForm">
+        <input type="email" id="newsletterEmail" placeholder="Enter your email" required />
+        <button type="submit">Join Now</button>
+      </form>
+      <div class="newsletter-msg" id="newsletterMsg"></div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
 </body>
 </html>
