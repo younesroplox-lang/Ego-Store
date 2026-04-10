@@ -1,129 +1,221 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EGO | Secure Cart</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EGO | Cart</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <span>Secure and simple cart view</span>
+      <span>Review your items</span>
+      <span>Optimized for mobile</span>
+    </div>
+  </div>
 
-    <header>
-        <a href="index.html" class="logo">EGO</a>
-        <div class="user-actions">
-            <a href="index.html" class="cart-btn">Shop Archives</a>
-        </div>
-    </header>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">EGO</a>
 
-    <main class="container">
-        <div class="cart-container">
-            <h1 class="cart-title">Your Archive</h1>
-            
-            <div id="cartList">
+      <div></div>
+
+      <div class="header-actions">
+        <a href="index.html" class="secondary-btn">Continue shopping</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-section">
+    <div class="container">
+      <h1 class="cart-title">Your cart</h1>
+
+      <div class="cart-box">
+        <div id="cartContent"></div>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const cartContent = document.getElementById("cartContent");
+    const toast = document.getElementById("toast");
+    let promoDiscount = 0;
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2200);
+    }
+
+    function getCart() {
+      return JSON.parse(localStorage.getItem("ego_cart")) || [];
+    }
+
+    function setCart(cart) {
+      localStorage.setItem("ego_cart", JSON.stringify(cart));
+    }
+
+    function parsePrice(price) {
+      return parseFloat(String(price).replace(/[^0-9.]/g, "")) || 0;
+    }
+
+    function getGroupedCart(cartIds) {
+      const grouped = {};
+      cartIds.forEach((id) => {
+        grouped[id] = (grouped[id] || 0) + 1;
+      });
+      return grouped;
+    }
+
+    async function loadCart() {
+      const cartIds = getCart();
+
+      if (!cartIds.length) {
+        cartContent.innerHTML = `
+          <div class="empty-cart">
+            <h2>Your cart is empty</h2>
+            <p>Browse the catalog and add your favorite pieces.</p>
+            <a href="index.html" class="primary-btn">Go shopping</a>
+          </div>
+        `;
+        return;
+      }
+
+      try {
+        const response = await fetch("products.json");
+        const products = await response.json();
+        const groupedCart = getGroupedCart(cartIds);
+
+        let subtotal = 0;
+
+        const itemsHTML = Object.entries(groupedCart).map(([id, quantity]) => {
+          const product = products.find((item) => item.id === id);
+          if (!product) return "";
+
+          const price = parsePrice(product.price);
+          subtotal += price * quantity;
+
+          return `
+            <div class="cart-item">
+              <div class="cart-item-image">
+                <img src="${product.image}" alt="${product.name}" />
+              </div>
+
+              <div>
+                <div class="cart-item-title">${product.name}</div>
+                <div class="cart-item-price">${product.price}</div>
+
+                <div class="cart-item-controls">
+                  <button class="qty-btn" onclick="decreaseQty('${id}')">-</button>
+                  <div class="qty-value">${quantity}</div>
+                  <button class="qty-btn" onclick="increaseQty('${id}')">+</button>
+                  <button class="remove-link" onclick="removeAllOfItem('${id}')">Remove</button>
                 </div>
+              </div>
 
-            <div id="cartSummary" class="cart-summary-wrapper" style="display: none;">
-                <div class="promo-section">
-                    <input type="text" id="promoInput" class="promo-input" placeholder="ENTER PROMO CODE">
-                    <button class="promo-btn" onclick="applyPromo()">Apply</button>
-                </div>
-                <div id="promoMsg" class="promo-msg"></div>
-
-                <div class="cart-summary">
-                    <div class="total-label">Subtotal:</div>
-                    <div class="total-price" id="totalDisplay">$0.00</div>
-                </div>
-                <a href="https://members.ogads.com/" class="buy-now-btn" style="width: 100%; margin-top: 20px;">Execute Purchase</a>
+              <div class="product-price">$${(price * quantity).toFixed(2)}</div>
             </div>
-            
-            <div id="emptyCart" class="empty-msg" style="text-align: center; padding: 60px; color: #555;">
-                ARCIVE EMPTY_ <br><br>
-                <a href="index.html" style="color: var(--accent); font-weight: bold; text-transform: uppercase;">Aquire Items</a>
+          `;
+        }).join("");
+
+        const discountValue = subtotal * promoDiscount;
+        const total = subtotal - discountValue;
+
+        cartContent.innerHTML = `
+          <div class="cart-list">${itemsHTML}</div>
+
+          <div class="cart-summary">
+            <div class="promo-row">
+              <input type="text" id="promoInput" class="promo-input" placeholder="Enter promo code" />
+              <button class="apply-btn" onclick="applyPromo()">Apply</button>
             </div>
-        </div>
-    </main>
 
-    <script>
-        // متغير عالمي لحفظ قيمة الخصم
-        let discountApplied = false;
+            <div class="cart-summary-row">
+              <span>Subtotal</span>
+              <strong>$${subtotal.toFixed(2)}</strong>
+            </div>
 
-        async function loadCart() {
-            const cartIds = JSON.parse(localStorage.getItem('ego_cart')) || [];
-            const cartList = document.getElementById('cartList');
-            const summary = document.getElementById('cartSummary');
-            const empty = document.getElementById('emptyCart');
-            const totalDisplay = document.getElementById('totalDisplay');
+            <div class="cart-summary-row">
+              <span>Discount</span>
+              <strong>$${discountValue.toFixed(2)}</strong>
+            </div>
 
-            if (cartIds.length === 0) {
-                empty.style.display = 'block';
-                summary.style.display = 'none';
-                return;
-            }
+            <div class="cart-summary-row">
+              <span>Total</span>
+              <div class="cart-summary-total">$${total.toFixed(2)}</div>
+            </div>
 
-            empty.style.display = 'none';
-            summary.style.display = 'block';
+            <div class="product-page-actions" style="margin-top:16px;">
+              <a href="#" class="buy-btn">Proceed to checkout</a>
+              <a href="index.html" class="view-btn">Continue shopping</a>
+            </div>
+          </div>
+        `;
+      } catch (error) {
+        console.error(error);
+        cartContent.innerHTML = `
+          <div class="empty-state">
+            <h3>Error loading cart</h3>
+            <p>Please check your products.json file.</p>
+          </div>
+        `;
+      }
+    }
 
-            const response = await fetch('products.json');
-            const allProducts = await response.json();
+    function increaseQty(id) {
+      const cart = getCart();
+      cart.push(id);
+      setCart(cart);
+      loadCart();
+      showToast("Quantity updated");
+    }
 
-            let total = 0;
-            cartList.innerHTML = '';
+    function decreaseQty(id) {
+      const cart = getCart();
+      const index = cart.indexOf(id);
+      if (index !== -1) {
+        cart.splice(index, 1);
+      }
+      setCart(cart);
+      loadCart();
+      showToast("Quantity updated");
+    }
 
-            cartIds.forEach((id, index) => {
-                const product = allProducts.find(p => p.id === id);
-                if (product) {
-                    const priceNum = parseFloat(product.price.replace('$', ''));
-                    total += priceNum;
+    function removeAllOfItem(id) {
+      let cart = getCart();
+      cart = cart.filter((itemId) => itemId !== id);
+      setCart(cart);
+      loadCart();
+      showToast("Item removed");
+    }
 
-                    cartList.innerHTML += `
-                        <div class="cart-item">
-                            <img src="${product.image}" alt="${product.name}">
-                            <div class="cart-item-info">
-                                <div class="cart-item-title">${product.name}</div>
-                                <div class="cart-item-price">${product.price}</div>
-                                <button class="remove-btn" onclick="removeItem(${index})">[ Remove ]</button>
-                            </div>
-                        </div>
-                    `;
-                }
-            });
+    function applyPromo() {
+      const input = document.getElementById("promoInput");
+      const code = input.value.trim().toUpperCase();
 
-            // تطبيق الخصم إذا كان مفعلاً
-            if (discountApplied) {
-                total = 0; // تصفير السعر كلياً!
-            }
+      if (code === "EGO10") {
+        promoDiscount = 0.10;
+        showToast("Promo code applied");
+      } else {
+        promoDiscount = 0;
+        showToast("Invalid promo code");
+      }
 
-            totalDisplay.innerText = `$${total.toFixed(2)}`;
-        }
+      loadCart();
+    }
 
-        // دالة تطبيق كود الخصم الجديد
-        function applyPromo() {
-            const code = document.getElementById('promoInput').value.toUpperCase().trim();
-            const msg = document.getElementById('promoMsg');
+    window.increaseQty = increaseQty;
+    window.decreaseQty = decreaseQty;
+    window.removeAllOfItem = removeAllOfItem;
+    window.applyPromo = applyPromo;
 
-            // كود الخصم السحري الخاص بك
-            if (code === 'GET10') {
-                discountApplied = true;
-                msg.innerText = "SECURITY OVERRIDE_ CODE ACCEPTED. TOTAL RESET TO $0.";
-                msg.style.color = "var(--matrix, #0f0)"; // أخضر مصفوفي للنجاح
-                loadCart(); // إعادة تحميل السلة لتحديث السعر
-            } else {
-                discountApplied = false;
-                msg.innerText = "INVALID CODE_ ACCESS DENIED.";
-                msg.style.color = "var(--accent)";
-                loadCart();
-            }
-        }
-
-        function removeItem(index) {
-            let cart = JSON.parse(localStorage.getItem('ego_cart')) || [];
-            cart.splice(index, 1);
-            localStorage.setItem('ego_cart', JSON.stringify(cart));
-            loadCart();
-        }
-
-        loadCart();
-    </script>
+    loadCart();
+  </script>
 </body>
 </html>
