@@ -3,185 +3,279 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EGO | WORLDWIDE ARCHIVES</title>
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+    <title>EGO | THE UNDERGROUND ARCHIVE</title>
+    <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Syne:wght@800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <style>
+        /* --- EGO CORE SYSTEM --- */
         :root {
-            --bg-color: #050505;
-            --text-light: #ffffff;
-            --text-dim: #999999;
-            --accent: #d90429; /* أحمر دموي قوي */
-            --card-bg: #0f0f0f;
-            --border: #222222;
+            --black: #000000;
+            --blood: #ff003c;
+            --chrome: #c0c0c0;
+            --matrix: #0f0;
+            --noise: url('https://grainy-gradients.vercel.app/noise.svg');
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: var(--bg-color); color: var(--text-light); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
-
-        /* شريط متحرك احترافي */
-        .marquee { background: var(--text-light); color: var(--bg-color); padding: 8px 0; overflow: hidden; white-space: nowrap; font-weight: 900; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; }
-        .marquee-content { display: inline-block; animation: scroll 15s linear infinite; }
-        @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-
-        /* شريط التنقل الزجاجي */
-        header { display: flex; justify-content: space-between; align-items: center; padding: 20px 5%; position: sticky; top: 0; background: rgba(5, 5, 5, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); z-index: 100; }
-        .logo { font-family: 'Oswald', sans-serif; font-size: 36px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
         
-        .search-container { position: relative; }
-        .search-container input { background: transparent; border: none; border-bottom: 2px solid var(--text-dim); color: var(--text-light); padding: 8px 30px 8px 5px; font-size: 14px; outline: none; transition: 0.3s; width: 200px; font-family: 'Inter', sans-serif;}
-        .search-container input:focus { border-color: var(--text-light); width: 250px; }
+        body { 
+            background-color: var(--black); 
+            color: var(--chrome); 
+            font-family: 'Space Mono', monospace; 
+            overflow-x: hidden;
+            text-transform: uppercase;
+        }
 
-        /* الفلاتر */
-        .filters { display: flex; gap: 15px; padding: 30px 5%; overflow-x: auto; scrollbar-width: none; }
-        .filters::-webkit-scrollbar { display: none; }
-        .filter-btn { background: transparent; border: 1px solid var(--border); color: var(--text-dim); padding: 10px 25px; border-radius: 30px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; }
-        .filter-btn:hover, .filter-btn.active { background: var(--text-light); color: var(--bg-color); border-color: var(--text-light); transform: translateY(-2px); }
+        /* --- CRT SCANLINES & NOISE OVERLAY --- */
+        body::before {
+            content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 9999; background-size: 100% 2px, 3px 100%; pointer-events: none;
+        }
+        body::after {
+            content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: var(--noise); opacity: 0.05; z-index: 9998; pointer-events: none;
+        }
 
-        /* شبكة المنتجات */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; padding: 0 5% 60px; }
-        .product-card { background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; overflow: hidden; position: relative; transition: border-color 0.3s; }
-        .product-card:hover { border-color: #555; }
+        /* --- CUSTOM CURSOR --- */
+        .cursor-dot { width: 8px; height: 8px; background: var(--blood); position: fixed; border-radius: 50%; z-index: 10000; pointer-events: none; transform: translate(-50%, -50%); transition: width 0.2s, height 0.2s; box-shadow: 0 0 10px var(--blood); }
+        .cursor-outline { width: 40px; height: 40px; border: 1px solid var(--blood); position: fixed; border-radius: 50%; z-index: 9999; pointer-events: none; transform: translate(-50%, -50%); transition: 0.1s; }
+        .hovering .cursor-dot { width: 60px; height: 60px; background: rgba(255,0,60,0.2); border: 1px solid var(--blood); }
+        .hovering .cursor-outline { opacity: 0; }
+
+        /* --- BOOT LOADER --- */
+        #loader { position: fixed; width: 100vw; height: 100vh; background: var(--black); z-index: 20000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s; }
+        .loader-text { font-family: 'Syne', sans-serif; font-size: 5vw; color: var(--blood); font-weight: 800; animation: glitch 0.2s linear infinite; }
+        .loader-sub { color: var(--matrix); font-size: 14px; margin-top: 20px; }
+
+        /* --- GIANT GOTHIC HEADER --- */
+        header { padding: 50px 20px; text-align: center; position: relative; border-bottom: 1px solid #333; }
+        .goth-logo { font-family: 'UnifrakturMaguntia', cursive; font-size: 12vw; color: var(--chrome); line-height: 0.8; text-shadow: 0 0 20px rgba(255,0,60,0.5); text-transform: none; }
+        .header-marquee { position: absolute; bottom: 0; left: 0; width: 100%; background: var(--blood); color: var(--black); font-weight: bold; font-size: 12px; padding: 5px 0; overflow: hidden; white-space: nowrap; }
+        .header-marquee span { display: inline-block; animation: scroll-left 10s linear infinite; }
+
+        /* --- SEARCH & FILTERS (HACKER TERMINAL STYLE) --- */
+        .controls { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; border-bottom: 1px dashed #333; flex-wrap: wrap; gap: 20px;}
+        .search-term { background: transparent; border: none; border-bottom: 2px solid var(--blood); color: var(--chrome); font-family: 'Space Mono', monospace; font-size: 16px; padding: 5px; outline: none; width: 300px; text-transform: uppercase; }
+        .search-term::placeholder { color: #555; }
+        .filters { display: flex; gap: 10px; }
+        .f-btn { background: transparent; border: 1px solid #444; color: #888; padding: 5px 15px; font-family: 'Space Mono'; cursor: none; transition: 0.3s; text-transform: uppercase; font-size: 12px;}
+        .f-btn.active, .f-btn:hover { background: var(--chrome); color: var(--black); border-color: var(--chrome); }
+
+        /* --- EXTREME 3D GRID --- */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; padding: 60px 40px; perspective: 1000px; }
+        .product-card { position: relative; transform-style: preserve-3d; transition: transform 0.1s ease; cursor: none; }
         
-        .img-wrapper { width: 100%; aspect-ratio: 3/4; overflow: hidden; background: #111; }
-        .product-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
-        .product-card:hover img { transform: scale(1.08); }
+        .card-inner { background: #050505; border: 1px solid #222; padding: 15px; transform: translateZ(0); box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+        .card-inner::before { content: 'EGO'; position: absolute; top: -15px; left: -15px; font-family: 'Syne'; font-size: 80px; color: rgba(255,255,255,0.02); z-index: 0; font-weight: 800; pointer-events: none;}
         
-        .product-info { padding: 20px; display: flex; justify-content: space-between; align-items: flex-start; }
-        .product-title { font-size: 14px; font-weight: 600; text-transform: uppercase; width: 75%; line-height: 1.4; color: #ddd; }
-        .product-price { font-family: 'Oswald', sans-serif; font-size: 18px; color: var(--accent); font-weight: 700; }
-
-        /* شاشة المنتج (Modal) */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 1000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; }
-        .modal.active { display: flex; opacity: 1; }
-        .modal-content { background: var(--bg-color); width: 100%; max-width: 900px; height: 85vh; display: flex; border: 1px solid var(--border); position: relative; transform: translateY(20px); transition: transform 0.3s; overflow: hidden; }
-        .modal.active .modal-content { transform: translateY(0); }
+        .img-container { width: 100%; aspect-ratio: 3/4; overflow: hidden; position: relative; z-index: 1; filter: grayscale(100%) contrast(120%); transition: 0.5s; border: 1px solid #111;}
+        .product-card:hover .img-container { filter: grayscale(0%) contrast(100%); }
+        .img-container img { width: 100%; height: 100%; object-fit: cover; }
         
-        .close-btn { position: absolute; top: 20px; right: 20px; font-size: 28px; color: #fff; background: rgba(0,0,0,0.5); width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; border: none; z-index: 10; transition: 0.3s; }
-        .close-btn:hover { background: var(--text-light); color: var(--bg-color); }
-
-        .m-img-container { width: 50%; height: 100%; background: #111; }
-        .m-img { width: 100%; height: 100%; object-fit: cover; }
+        /* Glitch effect on hover */
+        .product-card:hover .img-container img { animation: imgGlitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite; }
         
-        .m-details { width: 50%; padding: 50px; display: flex; flex-direction: column; overflow-y: auto; }
-        .m-title { font-family: 'Oswald', sans-serif; font-size: 32px; text-transform: uppercase; margin-bottom: 10px; line-height: 1.1; }
-        .m-price { font-size: 24px; color: var(--accent); font-weight: 900; margin-bottom: 30px; font-family: 'Oswald', sans-serif; }
-        .m-desc { color: var(--text-dim); font-size: 14px; line-height: 1.7; margin-bottom: 40px; }
+        .p-meta { padding-top: 20px; display: flex; justify-content: space-between; align-items: flex-end; z-index: 2; position: relative; }
+        .p-name { font-weight: bold; font-size: 14px; max-width: 70%; line-height: 1.2; }
+        .p-price { color: var(--blood); font-family: 'Syne'; font-size: 24px; font-weight: 800; }
+
+        /* --- THE BLAST DOOR MODAL --- */
+        .modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 15000; display: none; pointer-events: none; }
+        .modal.active { display: block; pointer-events: all; }
         
-        .size-label { font-size: 11px; color: #666; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; font-weight: 600; }
-        .sizes-container { display: flex; gap: 10px; margin-bottom: 40px; flex-wrap: wrap; }
-        .size-box { border: 1px solid var(--border); padding: 12px 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; color: var(--text-dim); }
-        .size-box:hover { border-color: var(--text-light); color: var(--text-light); }
+        .door-top, .door-bottom { position: absolute; left: 0; width: 100%; height: 50vh; background: var(--black); border: 2px solid var(--blood); z-index: 1; transition: 0.5s cubic-bezier(0.77, 0, 0.175, 1); }
+        .door-top { top: 0; transform: translateY(-100%); border-bottom: none; }
+        .door-bottom { bottom: 0; transform: translateY(100%); border-top: none; }
+        .modal.active .door-top { transform: translateY(0); }
+        .modal.active .door-bottom { transform: translateY(0); }
 
-        .buy-btn { background: var(--text-light); color: var(--bg-color); padding: 20px; text-align: center; text-decoration: none; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; font-size: 16px; transition: 0.3s; border: none; cursor: pointer; width: 100%; display: block; }
-        .buy-btn:hover { background: var(--accent); color: white; }
+        .modal-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; width: 90%; max-width: 1200px; height: 80vh; display: flex; opacity: 0; transition: opacity 0.3s 0.4s; }
+        .modal.active .modal-content { opacity: 1; }
 
-        .loading { text-align: center; padding: 50px; color: var(--text-dim); font-family: 'Oswald', sans-serif; font-size: 20px; letter-spacing: 2px; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        .m-close { position: absolute; top: -40px; right: 0; color: var(--blood); font-size: 20px; font-weight: bold; background: none; border: none; font-family: 'Space Mono'; cursor: none; }
+        .m-close:hover { animation: glitch 0.2s infinite; }
 
-        /* استجابة الهواتف */
+        .m-left { width: 50%; height: 100%; background: #0a0a0a; border: 1px solid #333; padding: 20px; }
+        .m-img { width: 100%; height: 100%; object-fit: cover; filter: contrast(120%); }
+        
+        .m-right { width: 50%; height: 100%; background: var(--black); border: 1px solid #333; border-left: none; padding: 50px; display: flex; flex-direction: column; position: relative; overflow-y: auto;}
+        .m-right::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,0,60,0.03) 2px, rgba(255,0,60,0.03) 4px); pointer-events: none; }
+        
+        .m-title { font-family: 'Syne'; font-size: 50px; line-height: 1; color: var(--chrome); margin-bottom: 10px; text-transform: uppercase; }
+        .m-price { font-size: 30px; color: var(--blood); margin-bottom: 30px; }
+        .m-desc { color: #888; font-size: 14px; margin-bottom: 40px; line-height: 1.5; }
+        
+        .size-wrap { display: flex; gap: 10px; margin-bottom: auto; }
+        .size-box { border: 1px solid #444; padding: 15px 20px; background: transparent; color: var(--chrome); font-family: 'Space Mono'; transition: 0.2s; }
+        .size-box:hover { background: var(--blood); border-color: var(--blood); color: var(--black); }
+
+        .buy-btn { background: var(--blood); color: var(--black); padding: 25px; text-align: center; text-decoration: none; font-family: 'Syne'; font-weight: 800; font-size: 24px; text-transform: uppercase; letter-spacing: 5px; transition: 0.3s; border: none; margin-top: 30px; display: block;}
+        .buy-btn:hover { background: var(--chrome); color: var(--black); box-shadow: 0 0 20px rgba(255,255,255,0.5); }
+
+        /* --- ANIMATIONS --- */
+        @keyframes scroll-left { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        @keyframes imgGlitch { 0% { transform: translate(0) } 20% { transform: translate(-2px, 2px) } 40% { transform: translate(-2px, -2px) } 60% { transform: translate(2px, 2px) } 80% { transform: translate(2px, -2px) } 100% { transform: translate(0) } }
+        @keyframes glitch { 0% { text-shadow: 2px 0 0 red, -2px 0 0 blue; } 5% { text-shadow: -2px 0 0 red, 2px 0 0 blue; } 10% { text-shadow: 2px 0 0 red, -2px 0 0 blue; } 15% { text-shadow: none; } 100% { text-shadow: none; } }
+
+        /* Mobile */
         @media (max-width: 768px) {
-            header { padding: 15px 5%; }
-            .logo { font-size: 28px; }
-            .search-container input { width: 150px; }
-            .search-container input:focus { width: 180px; }
-            .grid { grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 0 5% 40px; }
-            .product-info { padding: 12px; flex-direction: column; }
-            .product-title { font-size: 12px; width: 100%; margin-bottom: 5px; }
-            .product-price { font-size: 16px; }
-            
-            .modal-content { flex-direction: column; height: 95vh; top: auto; bottom: 0; transform: translateY(100%); border-radius: 20px 20px 0 0; }
-            .modal.active .modal-content { transform: translateY(0); }
-            .m-img-container { width: 100%; height: 40%; }
-            .m-details { width: 100%; height: 60%; padding: 25px; }
-            .m-title { font-size: 24px; }
-            .close-btn { top: 10px; right: 10px; width: 35px; height: 35px; font-size: 24px; }
+            .goth-logo { font-size: 20vw; }
+            .controls { padding: 20px; }
+            .search-term { width: 100%; }
+            .grid { grid-template-columns: 1fr; padding: 20px; }
+            .modal-content { flex-direction: column; height: 90vh; top: 5%; transform: translate(-50%, 0); }
+            .m-left, .m-right { width: 100%; }
+            .m-left { height: 40%; }
+            .m-right { height: 60%; padding: 20px; }
+            .m-title { font-size: 30px; }
+            .cursor-dot, .cursor-outline { display: none; } /* لا نحتاج للماوس في الهاتف */
         }
     </style>
 </head>
 <body>
 
-    <div class="marquee">
-        <div class="marquee-content">
-            EGO WORLDWIDE // PREMIUM ARCHIVES // WORLDWIDE SHIPPING // NEW COLLECTION DROP // EGO WORLDWIDE // PREMIUM ARCHIVES // WORLDWIDE SHIPPING // NEW COLLECTION DROP
-        </div>
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
+
+    <div id="loader">
+        <div class="loader-text">EGO_OS v1.0</div>
+        <div class="loader-sub">ESTABLISHING SECURE CONNECTION...</div>
     </div>
 
     <header>
-        <div class="logo">EGO</div>
-        <div class="search-container">
-            <input type="text" id="search" placeholder="Search archives..." onkeyup="handleSearch()">
+        <div class="goth-logo">Ego</div>
+        <div class="header-marquee">
+            <span>[ WARNING: RESTRICTED ARCHIVES ] --- [ 1 OF 1 PIECES ] --- [ WORLDWIDE DELIVERY ] --- [ WARNING: RESTRICTED ARCHIVES ]</span>
         </div>
     </header>
 
-    <div class="filters">
-        <button class="filter-btn active" onclick="filterCat('all', this)">All Archives</button>
-        <button class="filter-btn" onclick="filterCat('hoodies', this)">Hoodies</button>
-        <button class="filter-btn" onclick="filterCat('tees', this)">Tees</button>
-        <button class="filter-btn" onclick="filterCat('bottoms', this)">Bottoms</button>
+    <div class="controls">
+        <input type="text" id="search" class="search-term interactive" placeholder=">_ SEARCH_DATABASE..." onkeyup="handleSearch()">
+        <div class="filters">
+            <button class="f-btn active interactive" onclick="filterCat('all', this)">[ ALL ]</button>
+            <button class="f-btn interactive" onclick="filterCat('hoodies', this)">[ HOODIES ]</button>
+            <button class="f-btn interactive" onclick="filterCat('tees', this)">[ TEES ]</button>
+            <button class="f-btn interactive" onclick="filterCat('bottoms', this)">[ BOTTOMS ]</button>
+        </div>
     </div>
 
-    <div id="loading" class="loading">SYNCING DATA...</div>
+    <div style="text-align: center; color: var(--blood); padding: 20px;" id="statusMsg"></div>
     
     <div class="grid" id="productGrid"></div>
 
     <div class="modal" id="modal">
+        <div class="door-top"></div>
+        <div class="door-bottom"></div>
         <div class="modal-content">
-            <button class="close-btn" onclick="closeModal()">&times;</button>
-            <div class="m-img-container">
+            <button class="m-close interactive" onclick="closeModal()">[X] ABORT</button>
+            <div class="m-left">
                 <img src="" class="m-img" id="mImg">
             </div>
-            <div class="m-details">
-                <div class="m-title" id="mTitle">Product Name</div>
+            <div class="m-right">
+                <div class="m-title" id="mTitle">NAME</div>
                 <div class="m-price" id="mPrice">$0.00</div>
-                <div class="m-desc" id="mDesc">Description goes here.</div>
-                
-                <div class="size-label">Select Size</div>
-                <div class="sizes-container" id="mSizes"></div>
-                
-                <a href="https://members.ogads.com/" class="buy-btn" target="_blank">Aquire Item</a>
+                <div class="m-desc" id="mDesc">DESC</div>
+                <div style="color: var(--matrix); font-size: 12px; margin-bottom: 10px;">> SELECT_PARAMETER:</div>
+                <div class="size-wrap" id="mSizes"></div>
+                <a href="https://members.ogads.com/" class="buy-btn interactive" target="_blank">EXECUTE_PURCHASE</a>
             </div>
         </div>
     </div>
 
     <script>
+        // --- 1. BOOT SEQUENCE ---
+        window.onload = () => {
+            setTimeout(() => {
+                document.getElementById('loader').style.opacity = '0';
+                setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+            }, 2000);
+        };
+
+        // --- 2. CUSTOM CURSOR & HOVER EFFECTS ---
+        const dot = document.getElementById('cursorDot');
+        const outline = document.getElementById('cursorOutline');
+        
+        window.addEventListener('mousemove', (e) => {
+            dot.style.left = e.clientX + 'px';
+            dot.style.top = e.clientY + 'px';
+            outline.style.left = e.clientX + 'px';
+            outline.style.top = e.clientY + 'px';
+        });
+
+        // --- 3. CORE LOGIC ---
         let allProducts = [];
         const grid = document.getElementById('productGrid');
-        const loader = document.getElementById('loading');
+        const status = document.getElementById('statusMsg');
 
         fetch('products.json')
             .then(res => res.json())
             .then(data => {
                 allProducts = data;
-                loader.style.display = 'none';
                 renderProducts(allProducts);
             })
             .catch(err => {
-                loader.innerText = 'ERROR: FAILED TO SYNC DATABASE.';
+                status.innerText = '> FATAL ERROR: DATABASE OFFLINE.';
             });
 
         function renderProducts(products) {
             grid.innerHTML = '';
             if(products.length === 0) {
-                grid.innerHTML = '<div style="color:var(--text-dim); grid-column: 1/-1; text-align:center; padding: 40px;">No items match your search.</div>';
+                grid.innerHTML = '<div style="color:#555; text-align:center; width:100%;">> 404_NO_MATCH_FOUND</div>';
                 return;
             }
             products.forEach(item => {
                 const card = document.createElement('div');
-                card.className = 'product-card';
+                card.className = 'product-card interactive';
                 card.onclick = () => openModal(item);
                 card.innerHTML = `
-                    <div class="img-wrapper"><img src="${item.image}" alt="${item.name}" loading="lazy"></div>
-                    <div class="product-info">
-                        <div class="product-title">${item.name}</div>
-                        <div class="product-price">${item.price}</div>
+                    <div class="card-inner">
+                        <div class="img-container"><img src="${item.image}" loading="lazy"></div>
+                        <div class="p-meta">
+                            <div class="p-name">${item.name}</div>
+                            <div class="p-price">${item.price}</div>
+                        </div>
                     </div>
                 `;
                 grid.appendChild(card);
             });
+
+            // Re-attach 3D hover effect to new cards
+            attach3DEffect();
+            attachCursorInteractions();
         }
 
+        // --- 4. 3D CARD TILT EFFECT ---
+        function attach3DEffect() {
+            const cards = document.querySelectorAll('.product-card');
+            cards.forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = ((y - centerY) / centerY) * -15; // Max 15deg rotation
+                    const rotateY = ((x - centerX) / centerX) * 15;
+                    
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
+                });
+            });
+        }
+
+        function attachCursorInteractions() {
+            document.querySelectorAll('.interactive').forEach(el => {
+                el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+                el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+            });
+        }
+
+        // --- 5. FILTERS & SEARCH ---
         function filterCat(category, btnElement) {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.f-btn').forEach(b => b.classList.remove('active'));
             if(btnElement) btnElement.classList.add('active');
             
             if(category === 'all') renderProducts(allProducts);
@@ -193,6 +287,7 @@
             renderProducts(allProducts.filter(p => p.name.toLowerCase().includes(query) || p.category.includes(query)));
         }
 
+        // --- 6. BLAST DOOR MODAL ---
         function openModal(item) {
             document.getElementById('mImg').src = item.image;
             document.getElementById('mTitle').innerText = item.name;
@@ -201,29 +296,19 @@
             
             const sizesDiv = document.getElementById('mSizes');
             sizesDiv.innerHTML = '';
-            if(item.sizes && item.sizes.length > 0) {
-                item.sizes.forEach(size => {
-                    sizesDiv.innerHTML += `<div class="size-box">${size}</div>`;
-                });
-            } else {
-                sizesDiv.innerHTML = `<div class="size-box" style="border-color:transparent; padding-left:0;">One Size</div>`;
-            }
+            item.sizes.forEach(size => {
+                sizesDiv.innerHTML += `<button class="size-box interactive">${size}</button>`;
+            });
 
-            const modal = document.getElementById('modal');
-            modal.style.display = 'flex';
-            // Slight delay to trigger the CSS transition
-            setTimeout(() => modal.classList.add('active'), 10);
+            document.getElementById('modal').classList.add('active');
             document.body.style.overflow = 'hidden';
+            attachCursorInteractions();
         }
 
         function closeModal() {
-            const modal = document.getElementById('modal');
-            modal.classList.remove('active');
-            setTimeout(() => {
-                modal.style.display = 'none';
-                document.body.style.overflow = 'auto';
-            }, 300); // Wait for transition to finish
+            document.getElementById('modal').classList.remove('active');
+            document.body.style.overflow = 'auto';
         }
     </script>
 </body>
-</html><!--  -->
+</html>
