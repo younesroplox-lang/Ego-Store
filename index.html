@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EGO | WORLDWIDE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        /* إعدادات التصميم الاحترافية لعلامة Ego */
+        :root { --bg-base: #030303; --text-main: #f0f0f0; --accent: #c10015; --border: #222; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); }
+        
+        /* شريط التنقل والبحث */
+        header { display: flex; justify-content: space-between; padding: 20px 40px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(3,3,3,0.9); backdrop-filter: blur(10px); z-index: 100;}
+        .logo { font-family: 'Syne', sans-serif; font-size: 30px; font-weight: 800; }
+        .search-box input { background: transparent; border: none; border-bottom: 1px solid #555; color: white; padding: 5px; outline: none; width: 200px;}
+        
+        /* الأقسام */
+        .categories { padding: 20px 40px; display: flex; gap: 15px; }
+        .cat-btn { background: transparent; border: 1px solid var(--border); color: #888; padding: 8px 20px; border-radius: 20px; cursor: pointer; transition: 0.3s;}
+        .cat-btn:hover, .cat-btn.active { background: white; color: black; }
+
+        /* شبكة المنتجات (مكان عرض الملابس) */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; padding: 20px 40px; }
+        .card { background: #0a0a0a; border: 1px solid var(--border); cursor: pointer; transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); border-color: #555; }
+        .card img { width: 100%; aspect-ratio: 4/5; object-fit: cover; }
+        .info { padding: 15px; }
+        .title { font-weight: bold; font-size: 14px; text-transform: uppercase; margin-bottom: 5px;}
+        .price { color: var(--accent); font-weight: bold; font-family: 'Syne', sans-serif; }
+
+        /* رسائل النظام */
+        .status-msg { padding: 20px 40px; color: var(--accent); font-size: 14px; }
+
+        /* شاشة المنتج (Modal) */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: var(--bg-base); width: 90%; max-width: 800px; display: flex; border: 1px solid var(--border); position: relative;}
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 30px; cursor: pointer; color: white; background: none; border: none;}
+        .m-img { width: 50%; object-fit: cover; }
+        .m-details { width: 50%; padding: 40px; display: flex; flex-direction: column; justify-content: center;}
+        .m-title { font-size: 28px; font-family: 'Syne', sans-serif; margin-bottom: 10px; text-transform: uppercase;}
+        .m-price { font-size: 20px; color: var(--accent); margin-bottom: 20px; font-weight: bold;}
+        .m-desc { color: #888; font-size: 14px; margin-bottom: 30px;}
+        .buy-btn { background: var(--accent); color: white; padding: 15px; text-align: center; text-decoration: none; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;}
+        
+        @media (max-width: 768px) {
+            header { flex-direction: column; gap: 15px; padding: 15px; }
+            .grid { grid-template-columns: repeat(2, 1fr); padding: 15px; gap: 10px;}
+            .modal-content { flex-direction: column; height: 90vh; overflow-y: auto;}
+            .m-img, .m-details { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">EGO</div>
+        <div class="search-box">
+            <input type="text" id="search" placeholder="Search archives..." onkeyup="handleSearch()">
+        </div>
+    </header>
+
+    <div class="categories">
+        <button class="cat-btn active" onclick="filterCat('all')">ALL</button>
+        <button class="cat-btn" onclick="filterCat('hoodies')">HOODIES</button>
+        <button class="cat-btn" onclick="filterCat('tees')">TEES</button>
+        <button class="cat-btn" onclick="filterCat('bottoms')">BOTTOMS</button>
+    </div>
+
+    <div id="status" class="status-msg">Loading archives...</div>
+    
+    <div class="grid" id="productGrid"></div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+            <img src="" class="m-img" id="mImg">
+            <div class="m-details">
+                <div class="m-title" id="mTitle">Title</div>
+                <div class="m-price" id="mPrice">$0.00</div>
+                <div class="m-desc" id="mDesc">Description</div>
+                <div style="color: #666; font-size: 12px; margin-bottom: 10px;">AVAILABLE SIZES: <span id="mSizes" style="color: white;"></span></div>
+                <a href="https://members.ogads.com/" class="buy-btn" target="_blank">PURCHASE NOW</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allProducts = []; // سنخزن المنتجات هنا بعد جلبها
+        const grid = document.getElementById('productGrid');
+        const status = document.getElementById('status');
+
+        // أهم خطوة: جلب البيانات من ملف قاعدة البيانات
+        fetch('products.json')
+            .then(response => response.json())
+            .then(data => {
+                allProducts = data; // حفظ المنتجات
+                renderProducts(allProducts); // عرضها
+                status.style.display = 'none'; // إخفاء رسالة التحميل
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                status.innerText = 'System Error: Cannot load database locally. (Needs a server)';
+            });
+
+        // دالة عرض المنتجات
+        function renderProducts(products) {
+            grid.innerHTML = '';
+            if(products.length === 0) {
+                grid.innerHTML = '<div style="color:#888;">No items found.</div>';
+                return;
+            }
+            products.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.onclick = () => openModal(item);
+                card.innerHTML = `
+                    <img src="${item.image}" alt="${item.name}">
+                    <div class="info">
+                        <div class="title">${item.name}</div>
+                        <div class="price">${item.price}</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // دالة الفلترة حسب القسم
+        function filterCat(category) {
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if(category === 'all') renderProducts(allProducts);
+            else renderProducts(allProducts.filter(p => p.category === category));
+        }
+
+        // دالة البحث الذكي
+        function handleSearch() {
+            const query = document.getElementById('search').value.toLowerCase();
+            const results = allProducts.filter(p => p.name.toLowerCase().includes(query) || p.category.includes(query));
+            renderProducts(results);
+        }
+
+        // دوال النافذة المنبثقة
+        function openModal(item) {
+            document.getElementById('mImg').src = item.image;
+            document.getElementById('mTitle').innerText = item.name;
+            document.getElementById('mPrice').innerText = item.price;
+            document.getElementById('mDesc').innerText = item.description;
+            document.getElementById('mSizes').innerText = item.sizes.join(' - ');
+            document.getElementById('modal').style.display = 'flex';
+        }
+        function closeModal() { document.getElementById('modal').style.display = 'none'; }
+    </script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+[
+  {
+    "id": "p1",
+    "name": "Gothic Cross Heavy Zip-Up",
+    "category": "hoodies",
+    "price": "$65.00",
+    "image": "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=800&q=80",
+    "description": "Washed black 400gsm cotton. Boxy, cropped fit with distressed detailing.",
+    "sizes": ["S", "M", "L", "XL"]
+  },
+  {
+    "id": "p2",
+    "name": "Tribal Star Baby Tee",
+    "category": "tees",
+    "price": "$35.00",
+    "image": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80",
+    "description": "Tight fit ribbed cotton. Faded front graphic with contrast stitching.",
+    "sizes": ["XS", "S", "M"]
+  },
+  {
+    "id": "p3",
+    "name": "Parachute Cargo Pants",
+    "category": "bottoms",
+    "price": "$85.00",
+    "image": "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=800&q=80",
+    "description": "Extremely baggy nylon parachute pants. Adjustable drawstrings at waist and ankles. 8 pockets.",
+    "sizes": ["28", "30", "32", "34"]
+  }
+]
